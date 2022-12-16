@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="User">
+	<insert id="join_phone" parameterType="userdto">
+		INSERT INTO INSTA.USER_INFO
+		(USER_ID, USER_PW, USER_NAME, USER_PHONE)
+		VALUES(#{user_id},#{user_pw}, #{user_name}, #{user_phone})
+	</insert>
+	<insert id="join_email" parameterType="userdto">
+		INSERT INTO INSTA.USER_INFO
+		(USER_ID, USER_PW, USER_NAME, USER_EMAIL)
+		VALUES(#{user_id},#{user_pw}, #{user_name}, #{user_email})
+	</insert>
+	<update id="join_birth_phone" parameterType="hashmap">
+      UPDATE INSTA.USER_INFO
+      SET USER_BIRTH=#{user_birth}
+      WHERE USER_PHONE=#{user_phone}
+   </update > 
+   <update id="join_birth_email" parameterType="hashmap">
+      UPDATE INSTA.USER_INFO
+      SET USER_BIRTH=#{user_birth}
+      WHERE USER_EMAIL=#{user_email}
+   </update >
+	<delete id="session_delete" parameterType="string">
+		DELETE FROM INSTA.USER_INFO
+		WHERE USER_ID=#{user_id}
+	</delete>
+	<select id="check_id" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM INSTA.USER_INFO WHERE USER_ID=#{user_id}
+	</select>
+	<select id="check_phone" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM INSTA.USER_INFO WHERE USER_PHONE=#{user_phone}
+	</select>
+	<select id="check_email" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM INSTA.USER_INFO WHERE USER_EMAIL=#{user_email}
+	</select>
+	<select id="login_id" resultType="userdto" parameterType="hashmap">
+		SELECT * FROM INSTA.USER_INFO
+		WHERE USER_ID = #{user_id} AND USER_PW = #{user_pw}
+	</select>
+	<select id="login_phone" resultType="userdto" parameterType="hashmap">
+		SELECT * FROM INSTA.USER_INFO
+		WHERE USER_PHONE = #{user_phone} AND USER_PW = #{user_pw}
+	</select>
+	<select id="login_email" resultType="userdto" parameterType="hashmap">
+		SELECT * FROM INSTA.USER_INFO
+		WHERE USER_EMAIL = #{user_email} AND USER_PW = #{user_pw}
+	</select>
+	<update id="mypage_changePw" parameterType="hashmap">
+		UPDATE INSTA.USER_INFO
+		SET USER_PW=#{user_pw}
+		WHERE USER_ID=#{user_id}
+	</update >
+	
+	<update id="update_user" parameterType="hashmap">
+		UPDATE INSTA.USER_INFO
+		SET  USER_NAME=#{loginUser.user_name}, USER_ID=#{loginUser.user_id}, USER_EMAIL=#{loginUser.user_email},
+			 USER_PHONE=#{loginUser.user_phone} 
+		WHERE USER_ID=#{session_id}
+	</update >
+	<select id="getUserId" parameterType="string" resultType="userdto">
+		SELECT * FROM USER_INFO WHERE USER_ID=#{user_id}
+	</select>
+	<select id="getUserPhone" parameterType="string" resultType="userdto">
+		SELECT * FROM USER_INFO WHERE USER_PHONE=#{user_phone}
+	</select>
+	<select id="getUserEmail" parameterType="string" resultType="userdto">
+		SELECT * FROM USER_INFO WHERE USER_EMAIL=#{user_email}
+	</select>
+	
+
+	
+		
+	
+
+</mapper>

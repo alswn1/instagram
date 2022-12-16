@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SeongHak">
+	<select id="getloginUserInfo" parameterType="string" resultType="userdto">
+		SELECT * FROM USER_INFO WHERE USER_ID = #{loginUserId}
+	</select>
+	<select id="getUserInfo" parameterType="string" resultType="userdto">
+		SELECT * FROM USER_INFO WHERE USER_ID = #{userId}
+	</select>
+	<!-- recommand_all_view.jsp로 이동할 때 필요한 sql문들, RecommandAllUser 클래스에서 사용되는 sql문들 -->
+	<select id="getRecommandUserList" parameterType="string" resultType="userdto">
+		SELECT * FROM USER_INFO WHERE USER_ID NOT IN (SELECT FOLLOW_ID FROM FOLLOW WHERE USER_ID = #{loginUserId}) AND USER_ID != #{loginUserId}
+	</select>
+	<select id="getRelatedFollowers" parameterType="hashmap" resultType="followdto">
+		SELECT * FROM FOLLOW WHERE FOLLOW_ID = #{targetId} AND USER_ID IN (SELECT FOLLOW_ID FROM FOLLOW WHERE USER_ID = #{loginUserId})
+	</select>
+	<select id="getUserBoardList" parameterType="string" resultType="boarddto">
+		SELECT * FROM BOARD WHERE BOARD_ID = #{userId}
+	</select>
+	<select id="getOneBoardImgSysName" parameterType="_int" resultType="boardfiledto">
+		SELECT * FROM BOARD_FILE WHERE BOARD_NUM = #{board_num}
+	</select>
+	<select id="getUserFollowCnt" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM FOLLOW WHERE USER_ID = #{userId}
+	</select>
+	<select id="getUserFollowerCnt" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM FOLLOW WHERE FOLLOW_ID = #{userId}
+	</select>
+	<insert id="followSelectedUser" parameterType="hashmap">
+		INSERT INTO FOLLOW VALUES (FOLLOW_SEQ.NEXTVAL, #{loginUserId}, #{followId})
+	</insert>
+	<delete id="followCancelSelectedUser" parameterType="hashmap">
+		DELETE FROM FOLLOW WHERE USER_ID = #{loginUserId} AND FOLLOW_ID = #{followId}
+	</delete>
+	<!-- main.jsp로 이동할 때 필요한 sql문들, MainBoardDTO 클래스에서 사용되는 sql문들 -->
+	<!-- 게시글 정보를 끌어오는 sql문, 시간순으로 정리하기 위해서 board_num 기준으로 내림차순 정렬해서 가져온다 -->
+	<select id="getMeAndFollowerBoardList" parameterType="string" resultType="boarddto">
+		SELECT * FROM BOARD WHERE BOARD_ID IN (SELECT FOLLOW_ID FROM FOLLOW WHERE USER_ID = #{loginUserId}) OR BOARD_ID = #{loginUserId} ORDER BY BOARD_NUM DESC
+	</select>
+	<select id="getBoardLikeCount" parameterType="_int" resultType="_int">
+		SELECT COUNT(*) FROM BOARD_LIKE WHERE BOARD_NUM = #{board_num}
+	</select>
+	<select id="getBoardImagesAsSysname" parameterType="_int" resultType="string">
+		SELECT FILE_SYSNAME FROM BOARD_FILE WHERE BOARD_NUM = #{board_num}
+	</select>
+	<select id="getBoardReplyListAsBoardNum" parameterType="_int" resultType="replydto">
+		SELECT * FROM REPLY WHERE BOARD_NUM = #{board_num} ORDER BY REPLY_DATE DESC
+	</select>
+	<select id="checkLikeBoard" parameterType="hashmap" resultType="_int">
+		SELECT COUNT(*) FROM BOARD_LIKE WHERE BOARD_NUM = #{board_num} AND BOARD_LIKE_ID = #{loginUserId}
+	</select>
+	<select id="checkBookmarkBoard" parameterType="hashmap" resultType="_int">
+		SELECT COUNT(*) FROM BOOKMARK WHERE BOOKMARK_ID = #{loginUserId} AND BOARD_NUM = #{board_num}
+	</select>
+	<delete id="cancelBoardLike" parameterType="hashmap">
+		DELETE FROM BOARD_LIKE WHERE BOARD_NUM = #{boardNum} AND BOARD_LIKE_ID = #{userId}
+	</delete>
+	<insert id="clickBoardLike" parameterType="hashmap">
+		INSERT INTO BOARD_LIKE VALUES (#{boardNum}, #{userId})
+	</insert>
+	<delete id="cancelBoardBookmark" parameterType="hashmap">
+		DELETE FROM BOOKMARK WHERE BOOKMARK_ID = #{bookmarkId} AND BOARD_NUM = #{boardNum}
+	</delete>
+	<insert id="clickBoardBookmark" parameterType="hashmap">
+		INSERT INTO BOOKMARK VALUES (#{bookmarkId}, #{boardNum})
+	</insert>
+	<insert id="writeReplyBoard" parameterType="hashmap">
+		INSERT INTO REPLY VALUES (REPLY_SEQ.NEXTVAL, #{replyId}, #{replyContents}, SYSDATE, #{boardNum})
+	</insert>
+	<!-- 팝업창 관련한 sql문들 -->
+	<select id="getSelectedBoardInfoAsBoardNum" parameterType="_int" resultType="boarddto">
+		SELECT * FROM BOARD WHERE BOARD_NUM = #{boardNum}
+	</select>
+	<select id="getReplyLikeCount" parameterType="_int" resultType="_int">
+		SELECT COUNT(*) FROM REPLY_LIKE WHERE REPLY_NUM = #{reply_num}
+	</select>
+	<select id="checkLikeReply" parameterType="hashmap" resultType="_int">
+		SELECT COUNT(*) FROM REPLY_LIKE WHERE REPLY_LIKE_ID = #{loginUserId} AND REPLY_NUM = #{replyNum}
+	</select>
+	<select id="getReplyReReListAsReplyNum" parameterType="_int" resultType="reredto">
+		SELECT * FROM RE_RE WHERE REPLY_NUM = #{reply_num} ORDER BY RE_RE_DATE ASC
+	</select>
+	<select id="getReReLikeCount" parameterType="_int" resultType="_int">
+		SELECT COUNT(*) FROM RE_RE_LIKE WHERE RE_RE_NUM = #{re_re_num}
+	</select>
+	<select id="checkLikeReRe" parameterType="hashmap" resultType="_int">
+		SELECT COUNT(*) FROM RE_RE_LIKE WHERE RE_RE_NUM = #{reReNum} AND RE_RE_LIKE_ID = #{loginUserId}
+	</select>
+	<select id="getMyNewReplyInfo" parameterType="hashmap" resultType="replydto">
+		SELECT * FROM REPLY WHERE REPLY_NUM = (SELECT MAX(REPLY_NUM) FROM REPLY WHERE REPLY_ID = #{replyId} AND BOARD_NUM = #{boardNum})
+	</select>
+	<insert id="writeReRe" parameterType="hashmap">
+		INSERT INTO RE_RE VALUES (RE_RE_SEQ.NEXTVAL, #{replyNum}, SYSDATE, #{reReContent}, #{reReId}, #{boardNum})
+	</insert>
+	<insert id="likeReRe" parameterType="hashmap">
+		INSERT INTO RE_RE_LIKE VALUES (#{reReNum}, #{reReLikeId})
+	</insert>
+	<delete id="cancelLikeReRe" parameterType="hashmap">
+		DELETE FROM RE_RE_LIKE WHERE RE_RE_NUM = #{reReNum} AND RE_RE_LIKE_ID = #{reReLikeId}
+	</delete>
+	<delete id="removeReReLikeAsReReNum" parameterType="_int">
+		DELETE FROM RE_RE_LIKE WHERE RE_RE_NUM = #{reReNum}
+	</delete>
+	<delete id="removeReReAsReReNum" parameterType="hashmap">
+		DELETE FROM RE_RE WHERE RE_RE_NUM = #{reReNum} AND RE_RE_ID = #{reReId}
+	</delete>
+	<insert id="likeReply" parameterType="hashmap">
+		INSERT INTO REPLY_LIKE VALUES (#{replyNum}, #{replyLikeId})
+	</insert>
+	<delete id="cancelLikeReply" parameterType="hashmap">
+		DELETE FROM REPLY_LIKE WHERE REPLY_NUM = #{replyNum} AND REPLY_LIKE_ID = #{replyLikeId}
+	</delete>
+	<delete id="removeReplyLikeAsReplyNum" parameterType="_int">
+		DELETE FROM REPLY_LIKE WHERE REPLY_NUM = #{replyNum}
+	</delete>
+	<delete id="removeReplyAsReplyNumAndReplyId" parameterType="hashmap">
+		DELETE FROM REPLY WHERE REPLY_NUM = #{replyNum} AND REPLY_ID = #{replyId}
+	</delete>
+	<select id="getMyNewReReInfo" parameterType="hashmap" resultType="reredto">
+		SELECT * FROM RE_RE WHERE RE_RE_NUM = (SELECT MAX(RE_RE_NUM) FROM RE_RE WHERE RE_RE_ID = #{reReId} AND BOARD_NUM = #{boardNum})
+	</select>
+	<delete id="removeReReAsBoardNum" parameterType="_int">
+		DELETE FROM RE_RE WHERE BOARD_NUM = #{boardNum}
+	</delete>
+	<delete id="removeReplyAsBoardNum" parameterType="_int">
+		DELETE FROM REPLY WHERE BOARD_NUM = #{boardNum}
+	</delete>
+	<delete id="removeBoardLikeAsBoardNum" parameterType="_int">
+		DELETE FROM BOARD_LIKE WHERE BOARD_NUM = #{boardNum}
+	</delete>
+	<delete id="removeBoardBookmarkAsBoardNum" parameterType="_int">
+		DELETE FROM BOOKMARK WHERE BOARD_NUM = #{boardNum}
+	</delete>
+	<delete id="removeBoardFileAsBoardNum" parameterType="_int">
+		DELETE FROM BOARD_FILE WHERE BOARD_NUM = #{boardNum}
+	</delete>
+	<delete id="removeBoardAsBoardNum" parameterType="_int">
+		DELETE FROM BOARD WHERE BOARD_NUM = #{boardNum}
+	</delete>
+	<!-- 알고리즘 관련 sql문들 -->
+	<select id="getAllBoardListOrderByLikeCnt" resultType="algorithmdto">
+		SELECT B.BOARD_NUM, NVL(SUB.LIKE_CNT, 0) LIKE_CNT  FROM BOARD B
+			LEFT OUTER JOIN (SELECT BL.BOARD_NUM, COUNT(*) LIKE_CNT FROM BOARD_LIKE BL GROUP BY BOARD_NUM) SUB
+			ON B.BOARD_NUM = SUB.BOARD_NUM
+		ORDER BY LIKE_CNT DESC
+	</select>
+	<!-- 메인에서 시작하기, 프로필 사진 추가 -->
+	<update id="updateMyProfileImage" parameterType="hashmap">
+		UPDATE USER_INFO SET USER_IMG = #{profileImage} WHERE USER_ID = #{loginUserId}
+	</update>
+	<select id="getBoardFilesSysnames" parameterType="_int" resultType="string">
+		SELECT FILE_SYSNAME FROM BOARD_FILE WHERE BOARD_NUM = #{boardNum}
+	</select>
+</mapper>

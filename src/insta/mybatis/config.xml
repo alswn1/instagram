@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <typeAliases>
+  	<typeAlias type="insta.app.dto.UserDTO" alias="userdto"/>
+  	<typeAlias type="insta.app.dto.BoardDTO" alias="boarddto"/>
+  	<typeAlias type="insta.app.dto.BoardFileDTO" alias="boardfiledto"/>
+  	<typeAlias type="insta.app.dto.BoardLikeDTO" alias="boardlikedto"/>
+  	<typeAlias type="insta.app.dto.BookmarkDTO" alias="bookmarkdto"/>
+  	<typeAlias type="insta.app.dto.DmDTO" alias="dmdto"/>
+  	<typeAlias type="insta.app.dto.FollowDTO" alias="followdto"/>
+  	<typeAlias type="insta.app.dto.ReplyDTO" alias="replydto"/>
+  	<typeAlias type="insta.app.dto.ReplyLikeDTO" alias="replylikedto"/>
+  	<typeAlias type="insta.app.dto.ReReDTO" alias="reredto"/>
+  	<typeAlias type="insta.app.dto.ReReLikeDTO" alias="rerelikedto"/>
+  	<typeAlias type="insta.app.dto.AlgorithmDTO" alias="algorithmdto" />
+  </typeAliases>
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="oracle.jdbc.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
+        <property name="username" value="insta"/>
+        <property name="password" value="insta"/>
+      </dataSource>
+    </environment>
+  </environments>
+  <mappers>
+    <mapper resource="insta/mapper/seonghak.xml"/>
+    <mapper resource="insta/mapper/user.xml"/>
+    <mapper resource="insta/mapper/board.xml"/>
+    <mapper resource="insta/mapper/seongho.xml"/>
+  </mappers>
+</configuration>

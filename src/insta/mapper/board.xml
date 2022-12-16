@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="Board">
+	
+	<select id="getBoardList" parameterType="string" resultType="boarddto">
+		SELECT * FROM BOARD WHERE BOARD_ID = #{userid}
+	</select>
+	
+	<select id="getBoardCnt" parameterType="string" resultType="_int">
+		SELECT COUNT(*) FROM BOARD WHERE BOARD_ID = #{userid}
+	</select>
+	
+	<select id="getBoardFileSysName" parameterType="_int" resultType="string">
+		SELECT MIN(FILE_SYSNAME) FROM BOARD_FILE WHERE BOARD_NUM = #{board_num}
+	</select>
+	
+	<!-- 민주 -->
+	<insert id="insertBoard" parameterType="boarddto">
+		INSERT INTO INSTA.BOARD
+		(BOARD_NUM, BOARD_ID, BOARD_DATE, BOARD_CONTENTS)
+		VALUES(BOARD_SEQ.NEXTVAL, #{board_id}, SYSDATE, #{board_contents})
+	</insert>
+	<insert id="insertFile" parameterType="boardfiledto">
+		INSERT INTO INSTA.BOARD_FILE VALUES(#{file_sysName}, #{file_orgName}, #{board_num})
+	</insert>
+	<select id="getLastNum" parameterType="string" resultType="_int">
+		SELECT MAX(BOARD_NUM) FROM BOARD WHERE BOARD_ID = #{boardid}
+	</select>
+</mapper>
